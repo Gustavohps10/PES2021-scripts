@@ -1,4 +1,4 @@
-/* By Gustavohps10. All rights reserved 2024
+--[[ By Gustavohps10. All rights reserved 2024
                                                                                (  )   (   )  )
                                                                                 ) (   )  (  (
                                                                                 ( )  (    ) )  
@@ -11,7 +11,7 @@
        |___/   |___/                                    |_|                 /    \___________/    \
                                                                             \_____________________/
                                                                                                              
-*/
+--]]
 
 local m = {}
 
@@ -52,22 +52,15 @@ local function process_matchstats(ctx, filename)
     if score_changed == true then
 
         -- locates the currently controlled player
-        --offsets = [base + 0x037F0AC8, 0x18, 0xC8, 0xF0, 0xC0, 0x538, 0x28, 0x1C4]
-        addr1 = memory.unpack("u64", memory.read(base + 0x037F0AC8, 4))
-        addr2 = addr1 + 0x18                                            
-        addr3 = memory.unpack("u64", memory.read(addr2, 4))
-        addr4 = addr3 + 0xC8
-        addr5 = memory.unpack("u64", memory.read(addr4, 4))
-        addr6 = addr5 + 0xF0
-        addr7 = memory.unpack("u64", memory.read(addr6, 4))
-        addr8 = addr7 + 0xC0
-        addr9 = memory.unpack("u64", memory.read(addr8, 4))
-        addr10 = addr9 + 0x538
-        addr11 = memory.unpack("u64", memory.read(addr10, 4))
-        addr12 = addr11 + 0x28
-        addr13 = memory.unpack("u64", memory.read(addr12, 4))
-        addr14 = addr13 + 0x1C4
-        playerId  = memory.unpack("u32", memory.read(addr14, 4))
+        local addr = base + 0x037F0AC8
+        offsets = {0x18, 0xC8, 0xF0, 0xC0, 0x538, 0x28, 0x1C4}
+        
+        for i, offset in pairs(offsets) do 
+            unpacked = memory.unpack("u64", memory.read(addr, 4))
+            addr = unpacked + offset
+        end
+        
+        playerId  = memory.unpack("u32", memory.read(addr, 4))
         
         log("------------------------------------------------------------------------------ Goal from: " .. who_scored)
         log("------------------------------------------------------------------------------ Goal from player: " .. playerId)
