@@ -4,6 +4,7 @@ This repository is focused on developing my own additional scripts for [Sider](h
 # :game_die: Features
 - [x] PlayerName
 - [x] Goal Soundtrack
+- [x] Ringtone
 
 # :hammer_and_wrench: Technologies
 Tools used in the project:
