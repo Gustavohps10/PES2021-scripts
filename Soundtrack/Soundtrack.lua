@@ -20,13 +20,17 @@ local gsroot = ".\\BMPES\\GoalSoundtrack"
 local soundtracks = {}
 local selected_soundtrack_id = 1 -- ID from Selected Soundtrack
 local soundtracks_amount = 0
+local volume = 70
 
 local celebration_activated = false
 local score_changed = false
 local total_goal_files_loaded_count = 0
 
-local PREV_VALUE_KEY = 0xbd 	--  - key
-local NEXT_VALUE_KEY = 0xbb 	--  + key
+local PREV_SOUNDTRACK_KEY = 0x39	--  9 key
+local NEXT_SOUNDTRACK_KEY = 0x30  	--  0 key 
+local INCREASE_VOLUME_KEY = 0xbb    --  + key  
+local DECREASE_VOLUME_KEY = 0xbd    --  - key  
+local PLAY_PAUSE_KEY = 0x3a         --  8 key
 
 local function trim(s)
   return s:gsub("^%s*(.-)%s*$", "%1")
@@ -118,7 +122,7 @@ local function process_matchstats(ctx, filename)
         if file_exists(soundPath) then
             log("------------------------------------------------------------------------------ Arquivo " .. soundtracks[selected_soundtrack_id][2] .. " encontrado :) ")
             soundtrack = audio.new(soundPath)
-            soundtrack:set_volume(0.7) 
+            soundtrack:set_volume(volume/100) 
             soundtrack:play() 
             soundtrack:when_done(function() 
                 soundtrack = nil
@@ -146,18 +150,23 @@ function m.before_celebration(ctx)
     end
 end
 
-local opts = { image_height = 80, image_hmargin = 2, image_vmargin = 2 }
+local opts = { image_height = 100, image_hmargin = 8, image_vmargin = 4 }
 function m.overlay_on(ctx)
     local sname = soundtracks[selected_soundtrack_id][3]
-    local text = string.format([[Version: %s | Soundtrack: %s
-        Press [+][-] buttons to change soundtrack
-    ]], m.version, sname) 
+    local text = string.format([[Version: %s 
+        Press [9][0] buttons to change soundtrack
+        Press [+][-] buttons to increase/decrease volume
+        
+        Soundtrack: %s
+        Volume: %s
+    ]], m.version, sname, volume .. "%") 
     local image = gsroot.. "\\logos\\" .. sname .. ".png"
     return text, image, opts
 end 
 
 function  m.key_down(ctx, vkey)
-    if vkey == NEXT_VALUE_KEY then
+    -- Change Soundtrack
+    if vkey == NEXT_SOUNDTRACK_KEY then
         if(selected_soundtrack_id == soundtracks_amount) then
             selected_soundtrack_id = 1
         else
@@ -165,11 +174,24 @@ function  m.key_down(ctx, vkey)
         end
     end
 
-    if vkey == PREV_VALUE_KEY then
+    if vkey == PREV_SOUNDTRACK_KEY then
         if selected_soundtrack_id == 1 then
             selected_soundtrack_id = soundtracks_amount
         else
             selected_soundtrack_id = selected_soundtrack_id - 1
+        end
+    end
+
+    -- Volume
+    if vkey == INCREASE_VOLUME_KEY then
+        if volume + 10 <= 100 then
+            volume = volume + 10
+        end
+    end
+
+    if vkey == DECREASE_VOLUME_KEY then
+        if volume - 10 >= 0 then
+            volume = volume - 10
         end
     end
 end
