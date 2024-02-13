@@ -23,6 +23,7 @@ local soundtracks_amount = 0
 local volume = 70
 local soundtrack_audio
 local playing_text = ""
+local settings
 
 local celebration_activated = false
 local score_changed = false
@@ -95,6 +96,23 @@ local function load_map_txt(filename)
     -- end
 end
 
+-- .ini file
+local function load_ini(filename)
+    local t = {}
+	local data = assert(io.lines(gsroot .. "\\" .. filename))
+	log(filename .. " found in " .. gsroot)
+
+	for line in data do
+		local name, value = string.match(line, "^([%w_]+)%s*=%s*([-%w%d.]+)")
+		if name and value then
+			value = tonumber(value) or value
+			t[name] = value
+			log(string.format("Using setting: %s = %s", name, value))
+		end
+	end
+	return t
+end
+
 local function play_soundtrack()
     local soundPath = gsroot .. "\\" .. soundtracks[selected_soundtrack_id][2]
     log("----- Soundtrack Path: " .. soundPath)        
@@ -158,7 +176,7 @@ function m.before_celebration(ctx)
     end
 end
 
-local opts = { image_height = 100, image_hmargin = 8, image_vmargin = 4 }
+local opts = { image_height = 120, image_hmargin = 20, image_vmargin = 20 }
 function m.overlay_on(ctx)
     local sname = soundtracks[selected_soundtrack_id][3]
     local text = string.format([[Version: %s 
@@ -238,8 +256,11 @@ function m.init(ctx)
     end
 	math.randomseed(os.time())
 
-	load_map_txt("map_soundtracks.txt")
-    log(soundtracks[1][3])
+    settings = load_ini("config.ini")
+	load_map_txt("map_soundtracks.txt") 
+
+    selected_soundtrack_id = settings["selected_soundtrack_id"]
+    volume = settings["volume"] * 100
 
     ctx.register("livecpk_data_ready", m.data_ready)
     ctx.register("set_teams", m.teams_selected)
