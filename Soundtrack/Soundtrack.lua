@@ -21,6 +21,8 @@ local soundtracks = {}
 local selected_soundtrack_id = 1 -- ID from Selected Soundtrack
 local soundtracks_amount = 0
 local volume = 70
+local soundtrack_audio
+local playing_text = ""
 
 local celebration_activated = false
 local score_changed = false
@@ -30,7 +32,7 @@ local PREV_SOUNDTRACK_KEY = 0x39	--  9 key
 local NEXT_SOUNDTRACK_KEY = 0x30  	--  0 key 
 local INCREASE_VOLUME_KEY = 0xbb    --  + key  
 local DECREASE_VOLUME_KEY = 0xbd    --  - key  
-local PLAY_PAUSE_KEY = 0x3a         --  8 key
+local PLAY_PAUSE_KEY = 0x38         --  8 key
 
 local function trim(s)
   return s:gsub("^%s*(.-)%s*$", "%1")
@@ -93,6 +95,28 @@ local function load_map_txt(filename)
     -- end
 end
 
+local function play_soundtrack()
+    local soundPath = gsroot .. "\\" .. soundtracks[selected_soundtrack_id][2]
+    log("----- Soundtrack Path: " .. soundPath)        
+    if file_exists(soundPath) then
+        log("------------------------------------------------------------------------------ Arquivo " .. soundtracks[selected_soundtrack_id][2] .. " encontrado :) ")
+        soundtrack_audio = audio.new(soundPath)
+        soundtrack_audio:set_volume(volume/100) 
+        soundtrack_audio:play()
+        playing_text = "--> Playing..." 
+        soundtrack_audio:when_done(function() 
+            soundtrack_audio = nil
+            celebration_activated = false
+            total_goal_files_loaded_count = 0
+            score_changed = false
+            playing_text = "" 
+            log("Trilha encerrada")
+        end)
+    else
+        log("---------------------------------------------------------------------- Arquivo não existe :( ")
+    end
+end
+
 local function process_matchstats(ctx, filename)
     local stats = match.stats()
 
@@ -117,23 +141,7 @@ local function process_matchstats(ctx, filename)
 
     if score_changed == true then
 
-        local soundPath = gsroot .. "\\" .. soundtracks[selected_soundtrack_id][2]
-        log(soundPath)        
-        if file_exists(soundPath) then
-            log("------------------------------------------------------------------------------ Arquivo " .. soundtracks[selected_soundtrack_id][2] .. " encontrado :) ")
-            soundtrack = audio.new(soundPath)
-            soundtrack:set_volume(volume/100) 
-            soundtrack:play() 
-            soundtrack:when_done(function() 
-                soundtrack = nil
-                celebration_activated = false
-                total_goal_files_loaded_count = 0
-                score_changed = false
-                log("Trilha encerrada")
-            end)
-        else
-            log("---------------------------------------------------------------------- Arquivo não existe :( ")
-        end
+        play_soundtrack()
        
         celebration_activated = false
         score_changed = false
@@ -156,10 +164,11 @@ function m.overlay_on(ctx)
     local text = string.format([[Version: %s 
         Press [9][0] buttons to change soundtrack
         Press [+][-] buttons to increase/decrease volume
+        Press [8]    button to play/pause soundtrack
         
-        Soundtrack: %s
+        Soundtrack: %s %s
         Volume: %s
-    ]], m.version, sname, volume .. "%") 
+    ]], m.version, sname, playing_text, volume .. "%") 
     local image = gsroot.. "\\logos\\" .. sname .. ".png"
     return text, image, opts
 end 
@@ -192,6 +201,15 @@ function  m.key_down(ctx, vkey)
     if vkey == DECREASE_VOLUME_KEY then
         if volume - 10 >= 0 then
             volume = volume - 10
+        end
+    end
+
+    -- Play Soundtrack
+    if vkey == PLAY_PAUSE_KEY then
+        if(soundtrack_audio) then
+            soundtrack_audio:finish()
+        else
+            play_soundtrack()
         end
     end
 end
