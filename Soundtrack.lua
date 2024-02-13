@@ -146,8 +146,14 @@ function m.before_celebration(ctx)
     end
 end
 
+local opts = { image_height = 80, image_hmargin = 2, image_vmargin = 2 }
 function m.overlay_on(ctx)
-    return string.format("Version: %s | Press [+][-] buttons to change soundtrack: %s", m.version, soundtracks[selected_soundtrack_id][3]) -- Name of Soundtrack
+    local sname = soundtracks[selected_soundtrack_id][3]
+    local text = string.format([[Version: %s | Soundtrack: %s
+        Press [+][-] buttons to change soundtrack
+    ]], m.version, sname) 
+    local image = gsroot.. "\\logos\\" .. sname .. ".png"
+    return text, image, opts
 end 
 
 function  m.key_down(ctx, vkey)
