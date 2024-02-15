@@ -16,7 +16,7 @@
 local m = {}
 m.version = "1.0"
 
-local gsroot = ".\\BMPES\\GoalSoundtrack"
+local gsroot = ".\\Soundtrack"
 local soundtracks = {}
 local selected_soundtrack_id = 1 -- ID from Selected Soundtrack
 local playing_soundtrack_id -- ID of the currently playing soundtrack
@@ -129,7 +129,7 @@ end
 -- end .ini file
 
 local function play_soundtrack()
-    local soundPath = gsroot .. "\\" .. soundtracks[selected_soundtrack_id][2]
+    local soundPath = gsroot .. "\\audios\\" .. soundtracks[selected_soundtrack_id][2]
     log("----- Soundtrack Path: " .. soundPath)        
     if file_exists(soundPath) then
         log("------------------------------------------------------------------------------ Arquivo " .. soundtracks[selected_soundtrack_id][2] .. " encontrado :) ")
