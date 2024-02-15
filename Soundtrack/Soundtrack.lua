@@ -19,6 +19,7 @@ m.version = "1.0"
 local gsroot = ".\\BMPES\\GoalSoundtrack"
 local soundtracks = {}
 local selected_soundtrack_id = 1 -- ID from Selected Soundtrack
+local playing_soundtrack_id -- ID of the currently playing soundtrack
 local soundtracks_amount = 0
 local volume = 70
 local soundtrack_audio
@@ -133,7 +134,8 @@ local function play_soundtrack()
         soundtrack_audio = audio.new(soundPath)
         soundtrack_audio:set_volume(volume/100) 
         soundtrack_audio:play()
-        playing_text = "--> Playing..." 
+        playing_soundtrack_id = selected_soundtrack_id
+        playing_text = string.format("--> ▶️ Playing %s <--", soundtracks[playing_soundtrack_id][3]) 
         soundtrack_audio:when_done(function() 
             soundtrack_audio = nil
             celebration_activated = false
@@ -196,9 +198,10 @@ function m.overlay_on(ctx)
         Press [+][-] buttons to increase/decrease volume
         Press [8]    button to play/pause soundtrack
         
-        Soundtrack: %s %s
+        Soundtrack: %s
         Volume: %s
-    ]], m.version, sname, playing_text, volume .. "%") 
+        %s
+    ]], m.version, sname, volume .. "%", playing_text) 
     local image = gsroot.. "\\logos\\" .. sname .. ".png"
     return text, image, opts
 end 
@@ -241,7 +244,7 @@ function  m.key_down(ctx, vkey)
     -- Play Soundtrack
     if vkey == PLAY_PAUSE_KEY then
         if(soundtrack_audio) then
-            playing_text = "--> Stopping..."
+            playing_text = string.format("--> ⏹️ Stopping %s <--", soundtracks[playing_soundtrack_id][3]) 
             soundtrack_audio:finish()
         else
             play_soundtrack()
