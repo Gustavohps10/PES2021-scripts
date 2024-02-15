@@ -12,3 +12,8 @@
 10, soundtrack_10.mp3, REDETV
 11, soundtrack_11.mp3, REDEVIDA
 12, soundtrack_12.mp3, CENTRO_AMERICA
+13, soundtrack_13.mp3, BANDNEWS
+14, soundtrack_14.mp3, EI_ADAPTADO
+15, soundtrack_15.mp3, ENERGIA97
+16, soundtrack_16.mp3, TRANSAMERICA
+17, soundtrack_17.mp3, CRAQUE_NETO
