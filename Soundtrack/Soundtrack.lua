@@ -29,6 +29,8 @@ local settings
 local celebration_activated = false
 local score_changed = false
 local total_goal_files_loaded_count = 0
+local total_chant_files_loaded_count = 0
+local ball_file_loaded = false
 
 local PREV_SOUNDTRACK_KEY = 0x39	--  9 key
 local NEXT_SOUNDTRACK_KEY = 0x30  	--  0 key 
@@ -140,6 +142,8 @@ local function play_soundtrack()
             soundtrack_audio = nil
             celebration_activated = false
             total_goal_files_loaded_count = 0
+            total_chant_files_loaded_count = 0
+            ball_file_loaded = false
             score_changed = false
             playing_text = "" 
             log("Trilha encerrada")
@@ -244,7 +248,8 @@ function  m.key_down(ctx, vkey)
     -- Play Soundtrack
     if vkey == PLAY_PAUSE_KEY then
         if(soundtrack_audio) then
-            playing_text = string.format("--> ⏹️ Stopping %s <--", soundtracks[playing_soundtrack_id][3]) 
+            playing_text = string.format("--> ⏹️ Stopping %s <--", soundtracks[playing_soundtrack_id][3])
+            soundtrack_audio:fade_to(0, 2) 
             soundtrack_audio:finish()
         else
             play_soundtrack()
@@ -259,7 +264,7 @@ function m.teams_selected(ctx, home_team_id, away_team_id)
 end
 
 function m.data_ready(ctx, filename)
-    -- log(filename)
+    log(filename)
 
     process_matchstats(ctx, filename)
 
@@ -268,6 +273,28 @@ function m.data_ready(ctx, filename)
         total_goal_files_loaded_count = 0
         celebration_activated = false
 	end
+
+    -- stop audio when skipping
+    if string.match(filename, "Asset\\model\\ball\\ball%d+\\#Win\\ball%.fpk") and soundtrack_audio then
+            ball_file_loaded = true
+    end
+
+    if soundtrack_audio and ball_file_loaded then
+
+        if string.match(filename, "\\common\\sound\\match\\awb\\Chant\\CHANT.*") then
+            total_chant_files_loaded_count = total_chant_files_loaded_count + 1
+            log("Total CHANT Files: "..total_chant_files_loaded_count)
+        end
+
+        if total_chant_files_loaded_count == 30 
+            or string.match(filename, "common\\demo\\fixdemo\\goal\\cut_data\\goal_celebrate.*")
+            or string.match(filename, "\\common\\sound\\match\\awb\\announce\\.*") then
+            soundtrack_audio:fade_to(0, 2)
+            soundtrack_audio:finish()
+            soundtrack_audio = nil
+            log("Soundtrack ending....")
+        end
+    end
 end 
 
 function m.init(ctx)
