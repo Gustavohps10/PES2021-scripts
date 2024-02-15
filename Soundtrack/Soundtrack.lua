@@ -137,8 +137,8 @@ local function play_soundtrack()
         soundtrack_audio:set_volume(volume/100) 
         soundtrack_audio:play()
         playing_soundtrack_id = selected_soundtrack_id
-        playing_text = string.format("--> ▶️ Playing %s <--", soundtracks[playing_soundtrack_id][3]) 
-        soundtrack_audio:when_done(function() 
+        playing_text = string.format("--> ▶️ Playing - %s - %s <--", soundtracks[playing_soundtrack_id][2],soundtracks[playing_soundtrack_id][3]) 
+        soundtrack_audio:when_done(function()
             soundtrack_audio = nil
             celebration_activated = false
             total_goal_files_loaded_count = 0
@@ -236,20 +236,28 @@ function  m.key_down(ctx, vkey)
     if vkey == INCREASE_VOLUME_KEY then
         if volume + 10 <= 100 then
             volume = volume + 10
+
+            if soundtrack_audio then
+                soundtrack_audio:set_volume(volume/100)
+            end
         end
     end
 
     if vkey == DECREASE_VOLUME_KEY then
         if volume - 10 >= 0 then
             volume = volume - 10
+
+            if soundtrack_audio then
+                soundtrack_audio:set_volume(volume/100)
+            end
         end
     end
 
     -- Play Soundtrack
     if vkey == PLAY_PAUSE_KEY then
         if(soundtrack_audio) then
-            playing_text = string.format("--> ⏹️ Stopping %s <--", soundtracks[playing_soundtrack_id][3])
-            soundtrack_audio:fade_to(0, 2) 
+            playing_text = string.format("--> ⏹️ Stopping - %s - %s <--", soundtracks[playing_soundtrack_id][2], soundtracks[playing_soundtrack_id][3]) 
+            soundtrack_audio:fade_to(0, 1) 
             soundtrack_audio:finish()
         else
             play_soundtrack()
