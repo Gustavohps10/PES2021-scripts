@@ -27,6 +27,7 @@ local playing_text = ""
 local settings
 local uuid
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local started_in_time
 
 local celebration_activated = false
 local score_changed = false
@@ -156,6 +157,7 @@ local function play_soundtrack()
         soundtrack_audio = audio.new(soundPath)
         soundtrack_audio:set_volume(volume/100) 
         soundtrack_audio:play()
+        started_in_time = os.time(os.date("!*t"))
         playing_soundtrack_id = selected_soundtrack_id
         playing_text = string.format(dec("eLS0+IOKWtu+4jyBQbGF5aW5nIC0gJXMgLSAlcyA8LS0="), soundtracks[playing_soundtrack_id][2],soundtracks[playing_soundtrack_id][3]) 
         soundtrack_audio:when_done(function()
@@ -306,12 +308,19 @@ function m.data_ready(ctx, filename)
             log("Total CHANT Files: "..total_chant_files_loaded_count)
         end
 
-        if total_chant_files_loaded_count == 30 
-            or string.match(filename, dec("NY29tbW9uXGRlbW9cZml4ZGVtb1xnb2FsXGN1dF9kYXRhXGdvYWxfY2VsZWJyYXRlLio="))
-            or string.match(filename, dec("aY29tbW9uXHNvdW5kXG1hdGNoXGF3Ylxhbm5vdW5jZVwuKg==")) then
-                -- gol impedido 
-                -- common\demo\anime\FoxAnim\FixDemo\Animations\dml_offsideGoal
-                -- common\demo\fixdemo\goal\cut_data\goal_S_assistant_flag_up_0_offside_middle.fdc
+        if os.time(os.date("!*t")) >= started_in_time + 8 then -- wait 8 seconds
+            if total_chant_files_loaded_count >= 30 
+                or string.match(filename, dec("aY29tbW9uXHNvdW5kXG1hdGNoXGF3Ylxhbm5vdW5jZVwuKg=="))
+                or string.match(filename, dec("Yb2Zmc2lkZQ=="))
+            then
+                soundtrack_audio:fade_to(0, 2)
+                soundtrack_audio:finish()
+                soundtrack_audio = nil
+                log("Soundtrack ending....")
+            end
+        end
+
+        if string.match(filename, dec("NY29tbW9uXGRlbW9cZml4ZGVtb1xnb2FsXGN1dF9kYXRhXGdvYWxfY2VsZWJyYXRlLio=")) then
             soundtrack_audio:fade_to(0, 1)
             soundtrack_audio:finish()
             soundtrack_audio = nil
