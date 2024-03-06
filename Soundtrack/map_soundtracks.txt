@@ -17,3 +17,5 @@
 15, soundtrack_15.mp3, ENERGIA97
 16, soundtrack_16.mp3, TRANSAMERICA
 17, soundtrack_17.mp3, CRAQUE_NETO
+18, soundtrack_18.mp3, EURO_2016
+19, soundtrack_19.mp3, JOVEM_PAN
